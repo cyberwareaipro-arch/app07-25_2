@@ -1,4 +1,4 @@
-// File: C:\Users\Pc\Documents\GitHub\app07-25_2\app\atenea\page.js
+// File: C:\Users\Matías A\Documents\Proyecto-profesor\app07-25_2\app\atenea\page.js
 import * as entry from '../../../../app/atenea/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

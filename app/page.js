@@ -9,14 +9,14 @@ export default function Login() {
   const router = useRouter()
 
   useEffect(() => { 
-    if (session && session.user.rol === 'user') { 
-        router.push('/atenea')
-    } else if
-        (session && session.user.rol === 'admin') { 
-        router.push('/admin')
-    } else if  
-        (session && session.user.rol === 'premium') {
-        router.push('/premium')
+    if (session) {
+      if (session.user?.rol === 'admin') { 
+          router.push('/admin')
+      } else if (session.user?.rol === 'premium') {
+          router.push('/premium')
+      } else {
+          router.push('/atenea')
+      }
     }
   }, [session, router])
 
@@ -24,7 +24,7 @@ export default function Login() {
 
   
   if (session) {
-    if (session.user.rol === 'admin') {
+    if (session.user?.rol === 'admin') {
       return (
         <div className="min-h-screen bg-gradient-to-br from-red-500 via-pink-600 to-purple-800 flex items-center justify-center p-4">
           <div className="bg-white/90 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-md w-full transform transition-all duration-300 hover:scale-105">

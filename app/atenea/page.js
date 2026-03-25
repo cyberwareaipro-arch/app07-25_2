@@ -60,16 +60,16 @@ const AteneaDigitalMVP = () => {
       { strategy: 'Sarcasmo Elegante', text: 'Vaya, mi fan número uno. Agradezco tu dedicación inquebrantable para consumir todo mi contenido. Tu apoyo es... notado.', isLocked: false },
       { strategy: 'Análisis Pseudo-Psicológico', text: 'Interesante. Tu comentario es, en sí mismo, una forma de buscar atención en mi publicación. ¿No es fascinante cómo funciona la psique humana? Gracias por esta valiosa lección práctica de proyección.', isLocked: false },
       { strategy: 'Deconstrucción Intelectual', text: 'Has usado una palabra para expresar una emoción compleja. Si bien es un enfoque minimalista, carece de datos. ¿Podrías desarrollar tu tesis? Espero tu ensayo.', 
-        isLocked: session?.user?.rol !== 'premium' },
+        isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' },
       { strategy: 'Confusión Absurda', text: '¡Gracias por el recordatorio! Justo ahora estaba procrastinando en mi trabajo de "ignorar consejos no solicitados". Tu comentario me ha ayudado a volver a mi tarea principal.', 
-        isLocked: session?.user?.rol !== 'premium' },
+        isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' },
     ]);
   }
   }, [session]);
 
   // --- Core Logic ---
   const generateResponses = async () => {
-    if (usageCount >= MAX_FREE_USES && session?.user?.rol !== 'premium') {
+    if (usageCount >= MAX_FREE_USES && session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin') {
       setShowPricingModal(true);
       return;
     }
@@ -96,7 +96,7 @@ const AteneaDigitalMVP = () => {
     }
 
     let estrategias;
-    if (session?.user?.rol === 'premium') {
+    if (session?.user?.rol === 'premium' || session?.user?.rol === 'admin') {
       estrategias = listaEstrategias;
       } else {
         estrategias = { 
@@ -169,7 +169,7 @@ Respuesta: [Tu respuesta aquí]`;
       if (strategyMatch && responseMatch) {
         const strategy = strategyMatch[1].trim();
         const responseText = responseMatch[1].trim();
-        const isLocked = session?.user?.rol !== 'premium' && !FREE_STRATEGIES.includes(strategy);
+        const isLocked = session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' && !FREE_STRATEGIES.includes(strategy);
         return { strategy, text: responseText, isLocked };
       }
       return null;
@@ -289,7 +289,7 @@ Respuesta: [Tu respuesta aquí]`;
           </button>
           <h2 className='space-y-5 mb-5'>¿Quieres comprar y actualizar a Premium?</h2>
           <span className='flex gap-8'>
-            {session?.user?.rol !== 'premium' && (
+            {session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' && (
               <button  
               onClick={() => setShowPayMethod(true)} 
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
@@ -372,7 +372,7 @@ Respuesta: [Tu respuesta aquí]`;
                   className="w-full h-32 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none transition-all"
                 />
                 <div className="flex justify-between items-center mt-4">
-                  {session?.user?.rol !== 'premium' && (
+                  {session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' && (
                   <div className="text-purple-200 text-sm">
                     <p>Respuestas gratuitas restantes: <span className="font-bold text-white">{Math.max(0, MAX_FREE_USES - usageCount)}/{MAX_FREE_USES}</span></p>
                     <div className="w-full bg-white/10 rounded-full h-1.5 mt-1">
