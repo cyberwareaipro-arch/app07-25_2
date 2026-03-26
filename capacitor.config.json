@@ -1,5 +1,9 @@
 {
   "appId": "com.profesor.app07252",
   "appName": "app07-25_2",
-  "webDir": "public"
+  "webDir": "public",
+  "server": {
+    "url": "https://app07-25-2-2fid.onrender.com/",
+    "cleartext": true
+  }
 }
