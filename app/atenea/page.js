@@ -26,7 +26,7 @@ const AteneaDigitalMVP = () => {
   const [comment, setComment] = useState('');
   const [responses, setResponses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [apiKey] = useState('AIzaSyAxrO75Dy9QxibfFsamlZYxKIcqFUNrt8w');
+  const [apiKey] = useState('AIzaSyBkz9Ns73zRIGcwp5uaIrLldwC09OG5CmI');
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [usageCount, setUsageCount] = useState(0);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -39,9 +39,9 @@ const AteneaDigitalMVP = () => {
   const router = useRouter()
 
   const config = {
-      apiUrl:"https://sandbox.flow.cl/api",
-      apiKey:process.env.API_KEY,
-      secretKey:process.env.SECRET_KEY
+    apiUrl: "https://sandbox.flow.cl/api",
+    apiKey: process.env.API_KEY,
+    secretKey: process.env.SECRET_KEY
   }
 
   useEffect(() => {
@@ -53,18 +53,22 @@ const AteneaDigitalMVP = () => {
   }, [session, status, router])
 
   // --- Demo Mode on Load ---
-  useEffect(()=> {
+  useEffect(() => {
     if (session?.user) {
-    setComment('Otra vez tú... ¿No te cansas de buscar atención?');
-    setResponses([
-      { strategy: 'Sarcasmo Elegante', text: 'Vaya, mi fan número uno. Agradezco tu dedicación inquebrantable para consumir todo mi contenido. Tu apoyo es... notado.', isLocked: false },
-      { strategy: 'Análisis Pseudo-Psicológico', text: 'Interesante. Tu comentario es, en sí mismo, una forma de buscar atención en mi publicación. ¿No es fascinante cómo funciona la psique humana? Gracias por esta valiosa lección práctica de proyección.', isLocked: false },
-      { strategy: 'Deconstrucción Intelectual', text: 'Has usado una palabra para expresar una emoción compleja. Si bien es un enfoque minimalista, carece de datos. ¿Podrías desarrollar tu tesis? Espero tu ensayo.', 
-        isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' },
-      { strategy: 'Confusión Absurda', text: '¡Gracias por el recordatorio! Justo ahora estaba procrastinando en mi trabajo de "ignorar consejos no solicitados". Tu comentario me ha ayudado a volver a mi tarea principal.', 
-        isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' },
-    ]);
-  }
+      setComment('Otra vez tú... ¿No te cansas de buscar atención?');
+      setResponses([
+        { strategy: 'Sarcasmo Elegante', text: 'Vaya, mi fan número uno. Agradezco tu dedicación inquebrantable para consumir todo mi contenido. Tu apoyo es... notado.', isLocked: false },
+        { strategy: 'Análisis Pseudo-Psicológico', text: 'Interesante. Tu comentario es, en sí mismo, una forma de buscar atención en mi publicación. ¿No es fascinante cómo funciona la psique humana? Gracias por esta valiosa lección práctica de proyección.', isLocked: false },
+        {
+          strategy: 'Deconstrucción Intelectual', text: 'Has usado una palabra para expresar una emoción compleja. Si bien es un enfoque minimalista, carece de datos. ¿Podrías desarrollar tu tesis? Espero tu ensayo.',
+          isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin'
+        },
+        {
+          strategy: 'Confusión Absurda', text: '¡Gracias por el recordatorio! Justo ahora estaba procrastinando en mi trabajo de "ignorar consejos no solicitados". Tu comentario me ha ayudado a volver a mi tarea principal.',
+          isLocked: session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin'
+        },
+      ]);
+    }
   }, [session]);
 
   // --- Core Logic ---
@@ -77,34 +81,38 @@ const AteneaDigitalMVP = () => {
     setResponses([]);
 
     const listaEstrategias = {
-        sarcasmo: { 
-          name: 'Sarcasmo Elegante',
-          description: 'Ironía fina que expone la ridiculez.'
-        },
-        psicologico: {
-          name: 'Análisis Pseudo-Psicológico',
-          description: 'Falsa compasión que trata al hater como un paciente.'
-        },
-        intelectual: {
-          name: 'Deconstrucción Intelectual',
-          description: 'Desmontar el comentario como si fuera una pieza de lógica fallida.'
-        },
-        confusión: {
-          name: 'Confusión Absurda',
-          description: 'Una respuesta tan inesperada que rompe la lógica del ataque.'
+      sarcasmo: {
+        name: 'Sarcasmo Elegante',
+        description: 'Ironía fina que expone la ridiculez.'
+      },
+      psicologico: {
+        name: 'Análisis Pseudo-Psicológico',
+        description: 'Falsa compasión que trata al hater como un paciente.'
+      },
+      intelectual: {
+        name: 'Deconstrucción Intelectual',
+        description: 'Desmontar el comentario como si fuera una pieza de lógica fallida.'
+      },
+      confusión: {
+        name: 'Confusión Absurda',
+        description: 'Una respuesta tan inesperada que rompe la lógica del ataque.'
       }
     }
 
     let estrategias;
     if (session?.user?.rol === 'premium' || session?.user?.rol === 'admin') {
       estrategias = listaEstrategias;
-      } else {
-        estrategias = { 
-          sarcasmo: listaEstrategias.sarcasmo,
-          psicologico: listaEstrategias.psicologico
-        }
+    } else {
+      estrategias = {
+        sarcasmo: listaEstrategias.sarcasmo,
+        psicologico: listaEstrategias.psicologico
       }
-    
+    }
+
+    const estrategiasString = Object.values(estrategias)
+      .map(e => `- ${e.name}: ${e.description}`)
+      .join('\n');
+
     const prompt = `### ROL Y OBJETIVO ###
 Eres un Agente IA especializado llamado "Atenea Digital". Tu personalidad es una fusión de un psicólogo experto, un maestro de la retórica y un comediante ingenioso. Tu misión es analizar comentarios de "haters" y generar 4 respuestas ingeniosas, cada una con una estrategia diferente, para desarmar la agresión y proteger la paz mental del creador.
 
@@ -117,7 +125,7 @@ Eres un Agente IA especializado llamado "Atenea Digital". Tu personalidad es una
 
 ### ESTRATEGIAS REQUERIDAS ###
 Genera exactamente una respuesta para cada una de las siguientes estrategias:
-"${estrategias}"
+${estrategiasString}
 
 ### TAREA ###
 Analiza el siguiente comentario de un hater y genera 4 respuestas, una por cada estrategia listada.
@@ -129,23 +137,17 @@ Estrategia: Sarcasmo Elegante
 Respuesta: [Tu respuesta aquí]
 ---
 Estrategia: Análisis Pseudo-Psicológico
-Respuesta: [Tu respuesta aquí]
----
-Estrategia: Deconstrucción Intelectual
-Respuesta: [Tu respuesta aquí]
----
-Estrategia: Confusión Absurda
 Respuesta: [Tu respuesta aquí]`;
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
 
       if (!response.ok) throw new Error(`Error: ${response.status}`);
-      
+
       const data = await response.json();
       const generatedText = data.candidates[0].content.parts[0].text;
       const parsedResponses = parseAndClassifyResponses(generatedText);
@@ -161,11 +163,12 @@ Respuesta: [Tu respuesta aquí]`;
   };
 
   const parseAndClassifyResponses = (text) => {
-    const sections = text.split('---').map(s => s.trim());
+    const cleanText = text.replace(/\*\*/g, '');
+    const sections = cleanText.split(/(?:---|___|\*\*\*)/).map(s => s.trim());
     return sections.map(section => {
-      const strategyMatch = section.match(/Estrategia: (.*)/);
-      const responseMatch = section.match(/Respuesta: (.*)/);
-      
+      const strategyMatch = section.match(/Estrategia:\s*(.*)/i);
+      const responseMatch = section.match(/Respuesta:\s*([\s\S]*)/i);
+
       if (strategyMatch && responseMatch) {
         const strategy = strategyMatch[1].trim();
         const responseText = responseMatch[1].trim();
@@ -207,14 +210,14 @@ Respuesta: [Tu respuesta aquí]`;
     const [selectedPlan, setSelectedPlan] = useState('monthly');
 
     const plans = [
-      { id: 'weekly', name: 'Plan Semanal', price: '5000.00', period: '/ semana'  },
-      { id: 'monthly', name: 'Plan Mensual', price: '10000.00', period: '/ mes'  },
-      { id: 'yearly', name: 'Plan Anual', price: '80000.00', period: '/ año'  }
+      { id: 'weekly', name: 'Plan Semanal', price: '5000.00', period: '/ semana' },
+      { id: 'monthly', name: 'Plan Mensual', price: '10000.00', period: '/ mes' },
+      { id: 'yearly', name: 'Plan Anual', price: '80000.00', period: '/ año' }
     ];
 
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-8 text-white relative shadow-2xl shadow-purple-500/20">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-6 md:p-8 text-white relative shadow-2xl shadow-purple-500/20 my-auto">
           <button onClick={() => setShowPricingModal(false)} className="absolute top-2 right-4 text-white/70 hover:text-white">
             <X />
           </button>
@@ -229,16 +232,15 @@ Respuesta: [Tu respuesta aquí]`;
                 <li className="flex items-center gap-3"><CheckCircle className="w-5 h-5 text-green-400" /> Soporte prioritario</li>
               </ul>
             </div>
-            
+
             {/* Plan Selection */}
             <div className="space-y-2 mb-2">
               {plans.map((plan) => (
                 <label key={plan.id} className="block cursor-pointer">
-                  <div className={`relative border-2 rounded-lg p-4 transition-all ${
-                    selectedPlan === plan.id 
-                      ? 'border-purple-400 bg-white/10' 
-                      : 'border-white/20 bg-white/5 hover:border-white/40'
-                  }`}>
+                  <div className={`relative border-2 rounded-lg p-4 transition-all ${selectedPlan === plan.id
+                    ? 'border-purple-400 bg-white/10'
+                    : 'border-white/20 bg-white/5 hover:border-white/40'
+                    }`}>
                     <input
                       type="radio"
                       name="plan"
@@ -246,7 +248,8 @@ Respuesta: [Tu respuesta aquí]`;
                       checked={selectedPlan === plan.id}
                       onChange={(e) => {
                         setSelectedPlan(e.target.value)
-                        setSelectedPrice(plan.price)}
+                        setSelectedPrice(plan.price)
+                      }
                       }
                       className="absolute opacity-0"
                     />
@@ -282,22 +285,22 @@ Respuesta: [Tu respuesta aquí]`;
 
   const PayModal = () => {
     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 p-4">
-        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-8 text-white relative shadow-2xl shadow-purple-500/20">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-6 md:p-8 text-white relative shadow-2xl shadow-purple-500/20">
           <button onClick={() => setShowPayModal(false)} className="absolute top-2 right-4 text-white/70 hover:text-white">
-                <X />
+            <X />
           </button>
           <h2 className='space-y-5 mb-5'>¿Quieres comprar y actualizar a Premium?</h2>
           <span className='flex gap-8'>
             {session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' && (
-              <button  
-              onClick={() => setShowPayMethod(true)} 
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+              <button
+                onClick={() => setShowPayMethod(true)}
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
                 Actualizar y Pagar
               </button>
             )}
             <button onClick={() => setShowPayModal(false)} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-                Cancelar
+              Cancelar
             </button>
             {showPayMethod && <PayMethod />}
           </span>
@@ -323,22 +326,22 @@ Respuesta: [Tu respuesta aquí]`;
   }
 
   const PayMethod = () => {
-     return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-100 p-4">
-        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-8 text-white relative shadow-2xl shadow-purple-500/20">
+    return (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+        <div className="bg-gradient-to-br from-purple-900 to-blue-900 border border-purple-500 rounded-2xl max-w-md w-full p-6 md:p-8 text-white relative shadow-2xl shadow-purple-500/20">
           <button onClick={() => setShowPayMethod(false)} className="absolute top-2 right-4 text-white/70 hover:text-white">
-                <X />
+            <X />
           </button>
           <button onClick={PayFlow} className='w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-2 rounded-lg transition-all duration-300 transform hover:scale-105'>
-                Flow
+            Flow
           </button>
           <button onClick={() => setShowPayMethod(false)} className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-              Cancelar
+            Cancelar
           </button>
         </div>
       </div>
-     )
-    }
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white font-sans">
@@ -373,12 +376,12 @@ Respuesta: [Tu respuesta aquí]`;
                 />
                 <div className="flex justify-between items-center mt-4">
                   {session?.user?.rol !== 'premium' && session?.user?.rol !== 'admin' && (
-                  <div className="text-purple-200 text-sm">
-                    <p>Respuestas gratuitas restantes: <span className="font-bold text-white">{Math.max(0, MAX_FREE_USES - usageCount)}/{MAX_FREE_USES}</span></p>
-                    <div className="w-full bg-white/10 rounded-full h-1.5 mt-1">
-                      <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-1.5 rounded-full" style={{ width: `${((MAX_FREE_USES - usageCount) / MAX_FREE_USES) * 100}%` }}></div>
+                    <div className="text-purple-200 text-sm">
+                      <p>Respuestas gratuitas restantes: <span className="font-bold text-white">{Math.max(0, MAX_FREE_USES - usageCount)}/{MAX_FREE_USES}</span></p>
+                      <div className="w-full bg-white/10 rounded-full h-1.5 mt-1">
+                        <div className="bg-gradient-to-r from-pink-500 to-purple-500 h-1.5 rounded-full" style={{ width: `${((MAX_FREE_USES - usageCount) / MAX_FREE_USES) * 100}%` }}></div>
+                      </div>
                     </div>
-                  </div>
                   )}
                   <button
                     onClick={generateResponses}
@@ -456,8 +459,8 @@ Respuesta: [Tu respuesta aquí]`;
           <section className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             {/* Testimonials & Stats */}
             <div className="space-y-8">
-              <h3 className="text-3xl font-bold text-center">¿Por qué los creadores nos aman?</h3>
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <h3 className="text-2xl sm:text-3xl font-bold text-center">¿Por qué los creadores nos aman?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
                 <div>
                   <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">{MOCK_STATS.responsesGenerated}+</p>
                   <p className="text-purple-200 text-sm">Respuestas Generadas</p>
@@ -509,7 +512,7 @@ Respuesta: [Tu respuesta aquí]`;
               )}
             </div>
           </section>
-   
+
 
           {/* Footer */}
           <footer className="text-center mt-16 text-purple-300 text-sm">
